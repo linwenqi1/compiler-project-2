@@ -35,16 +35,16 @@ varDec
     ;
 
 funcArgs
-    :  (specifier varDec (COMMA specifier varDec)*)
+    :  (specifier varDec (COMMA specifier varDec)*)?
     ;
 
 statement
-    : LBRACE statement* RBRACE
-    | specifier varDec (ASSIGN expression)? SEMI
-    | IF LPAREN expression RPAREN statement (ELSE statement)?
-    | WHILE LPAREN expression RPAREN statement
-    | RETURN expression SEMI
-    | expression SEMI
+    : LBRACE statement* RBRACE                                      #BlockStmt
+    | specifier varDec (ASSIGN expression)? SEMI                    #VarDecStmt
+    | IF LPAREN expression RPAREN statement (ELSE statement)?       #IfStmt
+    | WHILE LPAREN expression RPAREN statement                      #WhileStmt
+    | RETURN expression SEMI                                        #ReturnStmt
+    | expression SEMI                                               #ExprStmt
     ;
 
 expression
