@@ -2,6 +2,8 @@ package impl.project2;
 
 import framework.project2.Grader;
 import framework.project2.MissingSymbolError;
+import generated.Splc.SplcLexer;
+
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.IntervalSet;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
@@ -22,8 +24,27 @@ public class Project2ErrorListener extends BaseErrorListener {
             // 获取缺失 token 类型
             IntervalSet expectedTokens = parser.getExpectedTokens();
             if (expectedTokens.size() > 0) {
-                int expectedType = expectedTokens.getMinElement();
-                missingSymbolName = parser.getVocabulary().getSymbolicName(expectedType);
+                int[] priority = new int[] {
+                        SplcLexer.RPAREN,  // )
+                        SplcLexer.RBRACE,  // }
+                        SplcLexer.RBRACK,  // ]
+                        SplcLexer.SEMI,    // ;
+                        SplcLexer.COMMA    // ,
+                };
+                Integer chosen = null;
+                for (int t : priority) {
+                    if (expectedTokens.contains(t)) { chosen = t; break; }
+                }
+                if (chosen == null) {
+                    // 回退：从 expected 中选一个
+                    int[] arr = expectedTokens.toArray();
+                    if (arr != null && arr.length > 0) {
+                        chosen = arr[0];
+                    } else {
+                        chosen = expectedTokens.getMinElement();
+                    }
+                }
+                missingSymbolName = parser.getVocabulary().getSymbolicName(chosen);
             }
 
             // 行号处理
